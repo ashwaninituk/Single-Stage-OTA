@@ -1,0 +1,57 @@
+Class A Amplifier Circuit.
+
+*******************************************************
+* Transient Analysis of Class A Amplifier             *                                                     
+* Assignment : Course Project                         *
+* Deadline:16/Apr/2021 E.O.D.                         *
+* Author: Ashwani Kumar Sharma                        *
+* Roll No.: 204102402                                 *
+*******************************************************
+
+.include 45nm_LP.pm
+
+*Circuit Netlist and Supplies.
+Vdd sup 0 dc 1.1V
+Vin_p in1 0 dc 0.1V PULSE(-0.2V 0.2V 0us 0.1us 0.1us 1us 2us)
+Vin_m in2 0 dc 0.1V PULSE(0.2V -0.2V 0us 0.1us 0.1us 1us 2us)
+Ibias1 sup s12 20u
+Ibias2 d1 0 20u
+Ibias3 d2 0 20u
+M1 d1 in1 s12 s12 pmos W=5.4u L=270n
+M2 d2 in2 s12 s12 pmos W=5.4u L=270n
+M7 d7 g78 sup sup pmos W=5.4u L=270n
+M8 d8 g78 sup sup pmos W=5.4u L=270n
+M7c g78 g78c d7 d7 pmos W=5.4u L=270n
+M8c out g78c d8 d8 pmos W=5.4u L=270n
+M9c g78 g910c d1 d1 nmos W=2.7u L=270n
+M10c out g910c d2 d2 nmos W=2.7u L=270n
+CL out 0 70pF
+
+*Biasing Circuit
+Iref1 sup g910c 10u
+R2 g910c gbn1 10k
+Mbn1 dbn1 gbn1 0 0 nmos W=2.7u L=270n
+Mbn2 gbn1 g910c dbn1 dbn1 nmos W=2.7u L=270n
+
+Mbp1 dbp1 gbp1 sup sup pmos W=5.4u L=270n
+Mbp2 gbp1 g78c dbp1 dbp1 pmos W=5.4u L=270n
+R1 gbp1 g78c 10k
+Iref2 g78c 0 10u
+
+*Control block starts here.
+.control
+  run
+  tran 0.0001u 4u
+  plot V(in1)
+  plot V(in2)
+  plot (V(in1) - V(in2))
+  plot V(out)
+  plot deriv(V(out))
+  let slope = deriv(V(out))
+  *let curr = -Vdd#branch
+  meas tran Slew_Rate_pos max slope
+  meas tran Slew_Rate_neg min slope
+  *meas dc Out_Current find out_curr at = 0.1V
+.endc
+*Control block ends here.
+.end

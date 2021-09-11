@@ -1,0 +1,53 @@
+Class A Amplifier Circuit.
+
+*******************************************************
+* AC Analysis of Class A Amplifier                    *                                                     
+* Assignment : Course Project                         *
+* Deadline:16/Apr/2021 E.O.D.                         *
+* Author: Ashwani Kumar Sharma                        *
+* Roll No.: 204102402                                 *
+*******************************************************
+
+.include 45nm_LP.pm
+
+*Circuit Netlist and Supplies.
+Vdd sup 0 dc 1.1V
+*Vin_p in1 0 sin(0 0 100k 0 0)
+*Vin_m in2 0 sin(0 0 100k 0 0)
+Vin_p in1 0 dc 0.1 ac 0.01m
+Vin_m in2 0 dc 0.1 ac -0.01m
+Ibias1 sup s12 20u
+Ibias2 d1 0 20u
+Ibias3 d2 0 20u
+M1 d1 in1 s12 s12 pmos W=5.4u L=270n
+M2 d2 in2 s12 s12 pmos W=5.4u L=270n
+M7 d7 g78 sup sup pmos W=5.4u L=270n
+M8 d8 g78 sup sup pmos W=5.4u L=270n
+M7c g78 g78c d7 d7 pmos W=5.4u L=270n
+M8c out g78c d8 d8 pmos W=5.4u L=270n
+M9c g78 g910c d1 d1 nmos W=2.7u L=270n
+M10c out g910c d2 d2 nmos W=2.7u L=270n
+CL out 0 70pF
+
+*Biasing Circuit
+Iref1 sup g910c 10u
+Mbn1 g910c g910c d1 d1 nmos W=2.7u L=270n
+
+Mbp2 g78c g78c d7 d7 pmos W=5.4u L=270n
+Iref2 g78c 0 10u
+
+*Control block starts here.
+.control
+  run
+  ac dec 100 0.01 1G 
+  plot db(V(out)/(V(in1)-V(in2)))
+  plot {57.29*Vp(out)}
+  let p = 180+{57.29*Vp(out)}
+  let gain = db(V(out)/(V(in1)-V(in2)))
+  let phase = {57.29*Vp(out)}
+  meas ac Dc_Gain find gain at = 1
+  meas ac Gain_Crossover_Frequency find frequency when gain = 0
+  meas ac Phase_Margin find p when gain = 0
+.endc
+*Control block ends here.
+.end

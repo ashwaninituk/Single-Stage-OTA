@@ -1,0 +1,40 @@
+Adaptive Biasing Circuit for Input MOS.
+
+*******************************************************
+* Adaptive Biasing Circuit for Input MOS.             *                                                     
+* Assignment : Course Project                         *
+* Deadline: 03/Apr/2021 E.O.D.                        *
+* Author: Ashwani Kumar Sharma                        *
+* Roll No.: 204102402                                 *
+*******************************************************
+
+.include 45nm_LP.pm
+
+*Circuit Netlist and Supplies.
+Vdd sup 0 dc 1.1V
+Vin_m in1 0 sin(0 -30m 100k 10u 0)
+Vin_p in2 0 sin(0 30m 100k 10u 0)
+Ibias1 g5 0 10u
+Ibias2 g6 0 10u
+M1 d1 in1 s1 s1 pmos W=100u L=1u
+M2 d2 in2 s2 s2 pmos W=100u L=1u
+M3 g5 in1 s2 s2 pmos W=100u L=1u
+M4 g6 in2 s1 s1 pmos W=100u L=1u
+M5 s2 g5 sup sup pmos W=9u L=0.6u
+M6 s1 g6 sup sup pmos W=9u L=0.6u
+V1 d1 d11 0V
+V2 d2 d21 0V
+RL1 d21 0 1k
+RL2 d11 0 1k
+
+*Control block starts here.
+.control
+  run
+  tran 0.001m 0.1ms
+  plot V(in2)
+  plot V1#branch
+  plot V2#branch
+  *print V(in2) V1#branch V2#branch
+.endc
+*Control block ends here.
+.end
